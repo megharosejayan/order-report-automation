@@ -86,4 +86,13 @@ def edit_daily_report():
   df['配送先住所'] = df['配送先住所 province'].astype(str) + df['配送先住所 市'].astype(str) + df['配送先住所 １'] + df['配送先住所 ２']
   df['請求先住所'] = df['請求先住所 province'].astype(str) + df['請求先住所 市'].astype(str) + df['請求先住所1']+ df['請求先住所2']
 
+  #extract parent order id
+  df['Parent_order'] = df['Tags'].str.extract(r'created_from_#(\d+)')
+
+  df['Parent_order'] = df['Parent_order'].fillna(0)
+  df['Parent_order'] = df['Parent_order'].astype(int)
+  df['注文番号'] = df['注文番号'].astype(int)
+  # If the parent order is marked as paid, mark the child order in the daily report with "Paid"
+  df['支払い状況'] = df.apply(lambda row: 'paid' if row['Parent_order'] in df2['注文番号'].values else row['支払い状況'], axis=1)
+
   return df
